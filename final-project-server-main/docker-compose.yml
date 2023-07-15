@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  postgres:
+    env_file:
+      - db.env
+    container_name: postgres
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+
+  backend:
+    env_file:
+      - .development.env
+    container_name: backend
+    build:
+      context: .
+    ports:
+      - "3000:5000"
+    depends_on:
+      - "postgres"
+
+
+  pgadmin:
+    env_file:
+      - pgadmin.env
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "82:80"
+
+  client:
+    container_name: client
+    build:
+      context: https://github.com/borichevskiy/final-project-frontend-client.git#main
+      dockerfile: Dockerfile
+    ports:
+      - "8000:3000"
+
+  admin:
+    container_name: admin
+    build:
+      context: https://github.com/borichevskiy/final-project-frontend-admin.git#main
+      dockerfile: Dockerfile
+    ports:
+    - "8001:3000"
+
+volumes:
+  dbdata: # create the volume for persisting data.
